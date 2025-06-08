@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -104,6 +103,12 @@ const CompanyManagement: React.FC = () => {
 
   const handleDeleteCompany = (id: string) => {
     setCompanies(companies.filter(company => company.id !== id));
+  };
+
+  const handleEditingCompanyChange = (updates: Partial<Company>) => {
+    if (editingCompany) {
+      setEditingCompany({ ...editingCompany, ...updates });
+    }
   };
 
   const CompanyCard = ({ company }: { company: Company }) => (
@@ -444,7 +449,7 @@ const CompanyManagement: React.FC = () => {
         <Dialog open={!!editingCompany} onOpenChange={() => setEditingCompany(null)}>
           <CompanyForm
             company={editingCompany}
-            onCompanyChange={setEditingCompany}
+            onCompanyChange={handleEditingCompanyChange}
             onSubmit={handleUpdateCompany}
             title="Modifier l'Entreprise"
           />

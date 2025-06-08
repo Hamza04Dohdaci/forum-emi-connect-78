@@ -82,6 +82,12 @@ const SpeakerManagement: React.FC = () => {
     setSpeakers(speakers.filter(speaker => speaker.id !== id));
   };
 
+  const handleEditingSpeakerChange = (updates: Partial<Speaker>) => {
+    if (editingSpeaker) {
+      setEditingSpeaker({ ...editingSpeaker, ...updates });
+    }
+  };
+
   const SpeakerCard = ({ speaker }: { speaker: Speaker }) => (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -338,7 +344,7 @@ const SpeakerManagement: React.FC = () => {
         <Dialog open={!!editingSpeaker} onOpenChange={() => setEditingSpeaker(null)}>
           <SpeakerForm
             speaker={editingSpeaker}
-            onSpeakerChange={setEditingSpeaker}
+            onSpeakerChange={handleEditingSpeakerChange}
             onSubmit={handleUpdateSpeaker}
             title="Modifier l'Intervenant"
           />
