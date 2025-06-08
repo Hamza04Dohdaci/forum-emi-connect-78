@@ -1,0 +1,29 @@
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/forum_emi
+    username: ${DB_USERNAME:forum_emi}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  
+  security:
+    jwt:
+      secret: ${JWT_SECRET:mySecretKey}
+      expiration: 86400000 # 24 hours
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.forumemi: DEBUG
+    org.springframework.security: DEBUG
