@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Building, MapPin, Users, Edit, Trash2, Phone, Mail, Globe } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { useEvent } from '@/contexts/EventContext';
 
 interface Company {
   id: string;
@@ -24,35 +25,8 @@ interface Company {
 }
 
 const CompanyManagement: React.FC = () => {
-  const [companies, setCompanies] = useState<Company[]>([
-    {
-      id: '1',
-      nom: 'TechCorp Innovation',
-      secteur: 'Technologies',
-      description: 'Leader en solutions d\'intelligence artificielle et de machine learning.',
-      email: 'contact@techcorp.com',
-      telephone: '+33 1 23 45 67 89',
-      siteWeb: 'www.techcorp.com',
-      standNumero: 1,
-      typeContrat: 'DIAMOND',
-      nombreEmployes: 250,
-      intervenants: ['Dr. Marie Dupont']
-    },
-    {
-      id: '2',
-      nom: 'SecureNet Solutions',
-      secteur: 'Cybersécurité',
-      description: 'Spécialiste en sécurité informatique et protection des données.',
-      email: 'info@securenet.com',
-      telephone: '+33 1 98 76 54 32',
-      siteWeb: 'www.securenet.com',
-      standNumero: 3,
-      typeContrat: 'GOLD',
-      nombreEmployes: 120,
-      intervenants: ['Jean-Pierre Martin']
-    }
-  ]);
-
+  const { companies, addCompany, updateCompany, deleteCompany } = useEvent();
+  
   const [isAddingCompany, setIsAddingCompany] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [newCompany, setNewCompany] = useState<Partial<Company>>({
@@ -87,22 +61,19 @@ const CompanyManagement: React.FC = () => {
       intervenants: newCompany.intervenants || []
     };
 
-    setCompanies([...companies, company]);
+    addCompany(company);
     setNewCompany({ intervenants: [] });
     setIsAddingCompany(false);
   };
 
   const handleUpdateCompany = () => {
     if (!editingCompany) return;
-
-    setCompanies(companies.map(company => 
-      company.id === editingCompany.id ? editingCompany : company
-    ));
+    updateCompany(editingCompany);
     setEditingCompany(null);
   };
 
   const handleDeleteCompany = (id: string) => {
-    setCompanies(companies.filter(company => company.id !== id));
+    deleteCompany(id);
   };
 
   const handleEditingCompanyChange = (updates: Partial<Company>) => {

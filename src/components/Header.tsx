@@ -1,98 +1,65 @@
 
-import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import Logo from './Logo';
+import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Calendar, Users, Building, LogIn } from 'lucide-react';
+import Logo from './Logo';
 
 const Header: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const handleAuthClick = () => {
+    window.location.hash = '#auth';
+  };
 
-  const navItems = [
-    { label: 'Accueil', href: '#' },
-    { label: 'Événements', href: '#events' },
-    { label: 'Partenaires', href: '#partners' },
-    { label: 'Dashboard', href: '#dashboard' },
-    { label: 'À propos', href: '#about' },
-  ];
+  const handleManagementClick = () => {
+    window.location.hash = '#management';
+  };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+  const handleHomeClick = () => {
+    window.location.hash = '';
   };
 
   return (
-    <header 
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6 md:px-8',
-        isScrolled ? 'bg-white/80 dark:bg-emi-blue/80 backdrop-blur-md shadow-md' : 'bg-transparent'
-      )}
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Logo size="md" variant={isScrolled ? 'default' : 'default'} />
-        
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
-          {navItems.map((item) => (
-            <a 
-              key={item.label}
-              href={item.href}
-              className={cn(
-                'font-medium transition-colors duration-200 link-hover',
-                isScrolled ? 'text-emi-blue dark:text-white' : 'text-emi-blue dark:text-white'
-              )}
-            >
-              {item.label}
+    <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center cursor-pointer" onClick={handleHomeClick}>
+            <Logo />
+            <div className="ml-3">
+              <h1 className="text-xl font-bold text-emi-blue">Forum EMI</h1>
+              <p className="text-xs text-muted-foreground">Entreprises</p>
+            </div>
+          </div>
+          
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="#features" className="text-sm font-medium text-gray-700 hover:text-emi-blue transition-colors">
+              Fonctionnalités
             </a>
-          ))}
-          <Button className="bg-emi-blue text-white hover:bg-emi-darkblue">
-            Connexion
-          </Button>
-        </nav>
-        
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden text-emi-blue dark:text-white"
-          onClick={toggleMobileMenu}
-          aria-label="Menu"
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-      
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-emi-blue shadow-lg animate-fade-in">
-          <div className="p-5 flex flex-col space-y-4">
-            {navItems.map((item) => (
-              <a 
-                key={item.label}
-                href={item.href}
-                className="text-emi-blue dark:text-white font-medium py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {item.label}
-              </a>
-            ))}
-            <Button className="bg-emi-blue text-white hover:bg-emi-darkblue w-full justify-center">
+            <a href="#dashboard" className="text-sm font-medium text-gray-700 hover:text-emi-blue transition-colors">
+              Tableau de bord
+            </a>
+            <a href="#partners" className="text-sm font-medium text-gray-700 hover:text-emi-blue transition-colors">
+              Partenaires
+            </a>
+          </nav>
+
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={handleManagementClick}
+              className="hidden md:flex items-center"
+            >
+              <Building className="w-4 h-4 mr-2" />
+              Gestion
+            </Button>
+            <Button 
+              onClick={handleAuthClick}
+              className="bg-emi-blue hover:bg-emi-darkblue"
+            >
+              <LogIn className="w-4 h-4 mr-2" />
               Connexion
             </Button>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 };

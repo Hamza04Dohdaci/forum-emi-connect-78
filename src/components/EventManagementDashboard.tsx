@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Users, Building, FileText, CheckSquare, BarChart3, User, Grid3X3 } from 'lucide-react';
+import { Calendar, Users, Building, FileText, CheckSquare, BarChart3, User, Grid3X3, Home } from 'lucide-react';
+import { useEvent } from '@/contexts/EventContext';
 import ContractManagement from './ContractManagement';
 import ConferenceManagement from './ConferenceManagement';
 import TaskManagement from './TaskManagement';
@@ -14,19 +15,26 @@ import CompanyManagement from './CompanyManagement';
 
 const EventManagementDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const { companies, contracts, speakers, stands } = useEvent();
 
-  // Mock data for the overview
+  // Calculate real-time statistics
+  const totalRevenue = contracts.reduce((sum, contract) => sum + contract.montant, 0);
+  const occupiedStands = stands.filter(stand => stand.statut === 'OCCUPE').length;
+  const totalSpeakers = speakers.length;
+  const totalCompanies = companies.length;
+  const totalContracts = contracts.length;
+
   const eventStats = {
-    totalPartners: 12,
-    totalContracts: 8,
-    totalRevenue: 185000,
+    totalPartners: totalContracts,
+    totalContracts: totalContracts,
+    totalRevenue: totalRevenue,
     upcomingConferences: 5,
     pendingTasks: 7,
     completedTasks: 15,
-    totalSpeakers: 8,
-    totalCompanies: 15,
-    occupiedStands: 6,
-    totalStands: 12
+    totalSpeakers: totalSpeakers,
+    totalCompanies: totalCompanies,
+    occupiedStands: occupiedStands,
+    totalStands: stands.length
   };
 
   const recentActivities = [
@@ -37,12 +45,22 @@ const EventManagementDashboard: React.FC = () => {
     { id: 5, action: 'Entreprise SecureNet ajoutée', entity: 'Zone B', time: '1j' }
   ];
 
+  const handleHomeClick = () => {
+    window.location.hash = '';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto p-6">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-emi-blue mb-2">Forum EMI - Gestion d'Événements</h1>
-          <p className="text-muted-foreground">Plateforme complète de gestion pour vos événements professionnels</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-emi-blue mb-2">Forum EMI - Gestion d'Événements</h1>
+            <p className="text-muted-foreground">Plateforme complète de gestion pour vos événements professionnels</p>
+          </div>
+          <Button onClick={handleHomeClick} variant="outline" className="flex items-center gap-2">
+            <Home className="w-4 h-4" />
+            Retour à l'accueil
+          </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   BarChart as BarChartIcon, 
@@ -11,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
+import { useEvent } from '@/contexts/EventContext';
 
 const data = [
   { name: 'Jan', participants: 20, partenaires: 5 },
@@ -21,38 +21,48 @@ const data = [
   { name: 'Jun', participants: 40, partenaires: 9 },
 ];
 
-const statCards = [
-  { 
-    title: 'Événements',
-    value: '24',
-    change: '+12%',
-    icon: Calendar,
-    color: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300'
-  },
-  { 
-    title: 'Participants',
-    value: '2,456',
-    change: '+18%',
-    icon: Users,
-    color: 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-300'
-  },
-  { 
-    title: 'Entreprises',
-    value: '68',
-    change: '+7%',
-    icon: Briefcase,
-    color: 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-300'
-  },
-  { 
-    title: 'Partenariats',
-    value: '32',
-    change: '+15%',
-    icon: Building,
-    color: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-300'
-  },
-];
-
 const Dashboard: React.FC = () => {
+  const { companies, contracts, speakers, stands } = useEvent();
+
+  const totalParticipants = companies.reduce((sum, company) => sum + company.nombreEmployes, 0);
+  const totalRevenue = contracts.reduce((sum, contract) => sum + contract.montant, 0);
+  const occupiedStands = stands.filter(stand => stand.statut === 'OCCUPE').length;
+
+  const statCards = [
+    { 
+      title: 'Événements',
+      value: '24',
+      change: '+12%',
+      icon: Calendar,
+      color: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300'
+    },
+    { 
+      title: 'Participants',
+      value: totalParticipants.toLocaleString(),
+      change: '+18%',
+      icon: Users,
+      color: 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-300'
+    },
+    { 
+      title: 'Entreprises',
+      value: companies.length.toString(),
+      change: '+7%',
+      icon: Briefcase,
+      color: 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-300'
+    },
+    { 
+      title: 'Partenariats',
+      value: contracts.length.toString(),
+      change: '+15%',
+      icon: Building,
+      color: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-300'
+    },
+  ];
+
+  const handleManagementClick = () => {
+    window.location.hash = '#management';
+  };
+
   return (
     <section id="dashboard" className="py-24 px-6 md:px-8">
       <div className="max-w-7xl mx-auto">
@@ -63,7 +73,11 @@ const Dashboard: React.FC = () => {
               Visualisez vos données en temps réel
             </h3>
           </div>
-          <Button variant="outline" className="group border-emi-blue text-emi-blue hover:bg-emi-blue/5 animate-fade-in animation-delay-200">
+          <Button 
+            variant="outline" 
+            className="group border-emi-blue text-emi-blue hover:bg-emi-blue/5 animate-fade-in animation-delay-200"
+            onClick={handleManagementClick}
+          >
             Accéder au tableau de bord complet
             <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
           </Button>
@@ -89,6 +103,25 @@ const Dashboard: React.FC = () => {
               <p className="text-2xl font-bold">{card.value}</p>
             </div>
           ))}
+        </div>
+
+        {/* Revenue Display */}
+        <div className="mb-8">
+          <div className="bg-white dark:bg-emi-blue/40 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-white/5">
+            <div className="flex items-center">
+              <div className="text-green-600 text-2xl font-bold">€</div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-muted-foreground">Revenus totaux</p>
+                <p className="text-2xl font-bold">{totalRevenue.toLocaleString()}€</p>
+              </div>
+              <div className="ml-auto">
+                <span className="text-xs font-medium text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-300 px-2 py-1 rounded-full flex items-center">
+                  +22%
+                  <ArrowUpRight className="ml-1 h-3 w-3" />
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -151,7 +184,11 @@ const Dashboard: React.FC = () => {
                 </div>
               ))}
             </div>
-            <Button variant="outline" className="w-full mt-6 text-emi-blue border-emi-blue hover:bg-emi-blue/5 flex items-center justify-center">
+            <Button 
+              variant="outline" 
+              className="w-full mt-6 text-emi-blue border-emi-blue hover:bg-emi-blue/5 flex items-center justify-center"
+              onClick={handleManagementClick}
+            >
               Voir tous les événements
               <ArrowUpRight className="ml-2 h-4 w-4" />
             </Button>
