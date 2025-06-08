@@ -7,10 +7,16 @@ import Dashboard from '@/components/Dashboard';
 import Partners from '@/components/Partners';
 import Footer from '@/components/Footer';
 import EventManagementDashboard from '@/components/EventManagementDashboard';
+import AuthPage from '@/components/AuthPage';
 
 const Index = () => {
-  // For demo purposes, you can toggle between the landing page and the management dashboard
+  // Check current route
   const showManagement = window.location.hash === '#management';
+  const showAuth = window.location.hash === '#auth';
+  
+  if (showAuth) {
+    return <AuthPage />;
+  }
   
   if (showManagement) {
     return <EventManagementDashboard />;
