@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface Company {
@@ -260,14 +259,23 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setCompanies(prev => prev.filter(c => c.id !== id));
   };
 
-  // Contracts CRUD
+  // Contracts CRUD - Auto-sign all contracts
   const addContract = (contract: Contract) => {
-    const newContract = { ...contract, statut: 'SIGNE' as const };
+    const newContract = { 
+      ...contract, 
+      statut: 'SIGNE' as const,
+      dateSignature: new Date().toISOString().split('T')[0]
+    };
     setContracts(prev => [...prev, newContract]);
   };
 
   const updateContract = (contract: Contract) => {
-    setContracts(prev => prev.map(c => c.id === contract.id ? contract : c));
+    const updatedContract = { 
+      ...contract, 
+      statut: 'SIGNE' as const,
+      dateSignature: contract.dateSignature || new Date().toISOString().split('T')[0]
+    };
+    setContracts(prev => prev.map(c => c.id === contract.id ? updatedContract : c));
   };
 
   const deleteContract = (id: string) => {

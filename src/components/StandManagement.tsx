@@ -116,13 +116,17 @@ const StandManagement: React.FC = () => {
         
         <div>
           <Label htmlFor="zone">Zone *</Label>
-          <Input
-            id="zone"
+          <select 
+            className="w-full p-2 border border-gray-300 rounded-md"
             value={stand.zone || ''}
             onChange={(e) => onChange({...stand, zone: e.target.value})}
-            placeholder="A, B, C..."
             disabled={!isAdmin}
-          />
+          >
+            <option value="">Sélectionnez une zone</option>
+            <option value="A">Zone A</option>
+            <option value="B">Zone B</option>
+            <option value="C">Zone C</option>
+          </select>
         </div>
         
         <div>
@@ -213,6 +217,15 @@ const StandManagement: React.FC = () => {
   const freeStands = stands.filter(stand => stand.statut === 'LIBRE').length;
   const reservedStands = stands.filter(stand => stand.statut === 'RESERVE').length;
 
+  // Group stands by zone
+  const standsByZone = stands.reduce((acc, stand) => {
+    if (!acc[stand.zone]) {
+      acc[stand.zone] = [];
+    }
+    acc[stand.zone].push(stand);
+    return acc;
+  }, {} as Record<string, Stand[]>);
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -290,79 +303,81 @@ const StandManagement: React.FC = () => {
         </Card>
       </div>
 
-      {/* Stands Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Liste des Stands</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>N°</TableHead>
-                <TableHead>Zone</TableHead>
-                <TableHead>Taille</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Entreprise</TableHead>
-                <TableHead>Responsable</TableHead>
-                <TableHead>Prix (MAD)</TableHead>
-                {isAdmin && <TableHead>Actions</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {stands.map((stand) => (
-                <TableRow key={stand.id}>
-                  <TableCell className="font-medium">{stand.numero}</TableCell>
-                  <TableCell>{stand.zone}</TableCell>
-                  <TableCell>{tailleLabels[stand.taille]}</TableCell>
-                  <TableCell>
-                    <Badge className={statutColors[stand.statut]}>
-                      {statutLabels[stand.statut]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{stand.entreprise || '-'}</TableCell>
-                  <TableCell>{stand.responsable || '-'}</TableCell>
-                  <TableCell>{stand.prix.toLocaleString()} MAD</TableCell>
-                  {isAdmin && (
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
+      {/* Stands by Zone */}
+      {Object.keys(standsByZone).sort().map(zone => (
+        <Card key={zone}>
+          <CardHeader>
+            <CardTitle>Zone {zone} ({standsByZone[zone].length} stands)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>N°</TableHead>
+                  <TableHead>Taille</TableHead>
+                  <TableHead>Statut</TableHead>
+                  <TableHead>Entreprise</TableHead>
+                  <TableHead>Responsable</TableHead>
+                  <TableHead>Prix (MAD)</TableHead>
+                  {isAdmin && <TableHead>Actions</TableHead>}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {standsByZone[zone]
+                  .sort((a, b) => a.numero - b.numero)
+                  .map((stand) => (
+                    <TableRow key={stand.id}>
+                      <TableCell className="font-medium">{stand.numero}</TableCell>
+                      <TableCell>{tailleLabels[stand.taille]}</TableCell>
+                      <TableCell>
+                        <Badge className={statutColors[stand.statut]}>
+                          {statutLabels[stand.statut]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{stand.entreprise || '-'}</TableCell>
+                      <TableCell>{stand.responsable || '-'}</TableCell>
+                      <TableCell>{stand.prix.toLocaleString()} MAD</TableCell>
+                      {isAdmin && (
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => setEditingStand(stand)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              {editingStand && (
+                                <StandForm
+                                  stand={editingStand}
+                                  onChange={(updatedStand) => setEditingStand({...editingStand, ...updatedStand})}
+                                  onSubmit={handleEditStand}
+                                  onCancel={() => setEditingStand(null)}
+                                  title="Modifier le Stand"
+                                />
+                              )}
+                            </Dialog>
                             <Button 
                               variant="outline" 
-                              size="sm"
-                              onClick={() => setEditingStand(stand)}
+                              size="sm" 
+                              onClick={() => handleDeleteStand(stand.id)}
+                              className="text-red-600 hover:text-red-700"
                             >
-                              <Edit className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
-                          </DialogTrigger>
-                          {editingStand && (
-                            <StandForm
-                              stand={editingStand}
-                              onChange={setEditingStand}
-                              onSubmit={handleEditStand}
-                              onCancel={() => setEditingStand(null)}
-                              title="Modifier le Stand"
-                            />
-                          )}
-                        </Dialog>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleDeleteStand(stand.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };

@@ -1,138 +1,173 @@
 
 import React from 'react';
-import { 
-  Calendar, 
-  Users, 
-  ArrowUpRight,
-  Briefcase,
-  Building
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Button } from '@/components/ui/button';
-import { useEvent } from '@/contexts/EventContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { Building2, Calendar, Users, TrendingUp } from 'lucide-react';
 
-const data = [
-  { name: 'Jan', participants: 20, partenaires: 5 },
-  { name: 'Fév', participants: 35, partenaires: 8 },
-  { name: 'Mar', participants: 45, partenaires: 10 },
-  { name: 'Avr', participants: 30, partenaires: 7 },
-  { name: 'Mai', participants: 55, partenaires: 12 },
-  { name: 'Jun', participants: 40, partenaires: 9 },
-];
-
-const Dashboard: React.FC = () => {
-  const { companies, contracts, speakers } = useEvent();
-  const { isAuthenticated, isAdmin } = useAuth();
-
-  const statCards = [
-    { 
-      title: 'Entreprises',
-      value: companies.length.toString(),
-      change: '+7%',
-      icon: Building,
-      color: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300'
+const Dashboard = () => {
+  const stats = [
+    {
+      title: "Entreprises Participantes",
+      value: "150+",
+      icon: Building2,
+      change: "+12%",
+      changeType: "positive"
     },
-    { 
-      title: 'Partenaires',
-      value: contracts.length.toString(),
-      change: '+15%',
-      icon: Briefcase,
-      color: 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-300'
-    },
-    { 
-      title: 'Conférences',
-      value: '5',
-      change: '+12%',
+    {
+      title: "Conférences Prévues",
+      value: "25",
       icon: Calendar,
-      color: 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-300'
+      change: "+5%",
+      changeType: "positive"
     },
-    { 
-      title: 'Intervenants',
-      value: speakers.length.toString(),
-      change: '+18%',
+    {
+      title: "Participants Attendus",
+      value: "2,500+",
       icon: Users,
-      color: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-300'
+      change: "+18%",
+      changeType: "positive"
     },
+    {
+      title: "Croissance vs 2025",
+      value: "22%",
+      icon: TrendingUp,
+      change: "+8%",
+      changeType: "positive"
+    }
   ];
 
-  const handleManagementClick = () => {
-    window.location.hash = '#management';
-  };
+  const sectorsData = [
+    { name: 'Technologies', value: 35, color: '#2563eb' },
+    { name: 'Finance', value: 25, color: '#dc2626' },
+    { name: 'Industrie', value: 20, color: '#16a34a' },
+    { name: 'Services', value: 15, color: '#ea580c' },
+    { name: 'Autres', value: 5, color: '#7c3aed' }
+  ];
+
+  const participationData = [
+    { annee: '2020', participants: 1800 },
+    { annee: '2021', participants: 1950 },
+    { annee: '2022', participants: 2100 },
+    { annee: '2023', participants: 2200 },
+    { annee: '2024', participants: 2350 },
+    { annee: '2026', participants: 2500 }
+  ];
+
+  const dailySchedule = [
+    { jour: 'Lundi 9', conferences: 8, stands: 45 },
+    { jour: 'Mardi 10', conferences: 12, stands: 48 },
+    { jour: 'Mercredi 11', conferences: 15, stands: 50 },
+    { jour: 'Jeudi 12', conferences: 10, stands: 47 },
+    { jour: 'Vendredi 13', conferences: 7, stands: 42 }
+  ];
 
   return (
-    <section id="dashboard" className="py-24 px-6 md:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-16">
-          <div>
-            <h2 className="text-sm font-semibold text-emi-gold uppercase tracking-wider mb-3 animate-fade-in">Tableau de bord</h2>
-            <h3 className="text-3xl md:text-4xl font-bold mb-4 md:mb-0 animate-fade-in animation-delay-100">
-              Visualisez vos données en temps réel
-            </h3>
-          </div>
-          {isAuthenticated && isAdmin && (
-            <Button 
-              variant="outline" 
-              className="group border-emi-blue text-emi-blue hover:bg-emi-blue/5 animate-fade-in animation-delay-200"
-              onClick={handleManagementClick}
-            >
-              Accéder au tableau de bord complet
-              <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </Button>
-          )}
+    <section id="dashboard" className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-emi-blue mb-4">
+            Tableau de Bord Forum EMI 2026
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Suivez en temps réel les statistiques et métriques clés de la 31ème édition
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {statCards.map((card, index) => (
-            <div 
-              key={card.title}
-              className="bg-white dark:bg-emi-blue/40 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-white/5 hover:shadow-md transition-all animate-fade-in"
-              style={{ animationDelay: `${(index + 1) * 100}ms` }}
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center', card.color)}>
-                  <card.icon className="w-5 h-5" />
+        {/* Key Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {stats.map((stat, index) => (
+            <Card key={index} className="relative overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">
+                      {stat.title}
+                    </p>
+                    <p className="text-2xl font-bold text-emi-blue">{stat.value}</p>
+                    <p className={`text-sm ${stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
+                      {stat.change} vs 2025
+                    </p>
+                  </div>
+                  <div className="p-3 bg-emi-blue/10 rounded-lg">
+                    <stat.icon className="h-6 w-6 text-emi-blue" />
+                  </div>
                 </div>
-                <span className="text-xs font-medium text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-300 px-2 py-1 rounded-full flex items-center">
-                  {card.change}
-                  <ArrowUpRight className="ml-1 h-3 w-3" />
-                </span>
-              </div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-1">{card.title}</h4>
-              <p className="text-2xl font-bold">{card.value}</p>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        <div className="bg-white dark:bg-emi-blue/40 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-white/5 animate-fade-in animation-delay-300">
-          <div className="flex items-center justify-between mb-6">
-            <h4 className="font-semibold">Tendances de participation</h4>
-          </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={data}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eaeaea" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
-                <Tooltip 
-                  cursor={{ fill: 'rgba(200, 200, 200, 0.2)' }} 
-                  contentStyle={{ 
-                    borderRadius: '0.5rem', 
-                    border: 'none', 
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                    padding: '12px'
-                  }} 
-                />
-                <Bar dataKey="participants" fill="#1A365D" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="partenaires" fill="#FFD700" radius={[4, 4, 0, 0]} />
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Sectors Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Répartition par Secteur</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={sectorsData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    dataKey="value"
+                    label={({ name, value }) => `${name}: ${value}%`}
+                  >
+                    {sectorsData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Participation Evolution */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Évolution de la Participation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={participationData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="annee" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line 
+                    type="monotone" 
+                    dataKey="participants" 
+                    stroke="#2563eb" 
+                    strokeWidth={3}
+                    dot={{ fill: '#2563eb', strokeWidth: 2, r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Daily Schedule */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Programme par Jour</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={dailySchedule}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="jour" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="conferences" fill="#2563eb" name="Conférences" />
+                <Bar dataKey="stands" fill="#16a34a" name="Stands Actifs" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </section>
   );

@@ -28,6 +28,15 @@ const CompanyManagement: React.FC = () => {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [newCompany, setNewCompany] = useState<Partial<Company>>({});
 
+  if (!isAdmin) {
+    return (
+      <div className="p-6">
+        <h2 className="text-3xl font-bold text-emi-blue mb-4">Gestion des Entreprises</h2>
+        <p className="text-muted-foreground">Vous n'avez pas les permissions pour accéder à cette section.</p>
+      </div>
+    );
+  }
+
   const handleAddCompany = () => {
     if (!newCompany.nom || !newCompany.secteur || !newCompany.email) return;
 
@@ -84,7 +93,6 @@ const CompanyManagement: React.FC = () => {
             value={company.nom || ''}
             onChange={(e) => onChange({...company, nom: e.target.value})}
             placeholder="Nom de l'entreprise"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -94,8 +102,7 @@ const CompanyManagement: React.FC = () => {
             id="secteur"
             value={company.secteur || ''}
             onChange={(e) => onChange({...company, secteur: e.target.value})}
-            placeholder="Technologies, Finance, etc."
-            disabled={!isAdmin}
+            placeholder="Secteur d'activité"
           />
         </div>
         
@@ -106,7 +113,6 @@ const CompanyManagement: React.FC = () => {
             value={company.description || ''}
             onChange={(e) => onChange({...company, description: e.target.value})}
             placeholder="Description de l'entreprise"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -118,7 +124,6 @@ const CompanyManagement: React.FC = () => {
             value={company.email || ''}
             onChange={(e) => onChange({...company, email: e.target.value})}
             placeholder="contact@entreprise.com"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -129,31 +134,27 @@ const CompanyManagement: React.FC = () => {
             value={company.telephone || ''}
             onChange={(e) => onChange({...company, telephone: e.target.value})}
             placeholder="+212 5 22 XX XX XX"
-            disabled={!isAdmin}
           />
         </div>
         
         <div>
-          <Label htmlFor="siteWeb">Site Web</Label>
+          <Label htmlFor="siteWeb">Site web</Label>
           <Input
             id="siteWeb"
             value={company.siteWeb || ''}
             onChange={(e) => onChange({...company, siteWeb: e.target.value})}
             placeholder="www.entreprise.com"
-            disabled={!isAdmin}
           />
         </div>
         
-        {isAdmin && (
-          <div className="flex space-x-2">
-            <Button onClick={onSubmit} className="flex-1">
-              {title.includes('Ajouter') ? 'Ajouter' : 'Modifier'}
-            </Button>
-            <Button onClick={onCancel} variant="outline" className="flex-1">
-              Annuler
-            </Button>
-          </div>
-        )}
+        <div className="flex space-x-2">
+          <Button onClick={onSubmit} className="flex-1">
+            {title.includes('Ajouter') ? 'Ajouter' : 'Modifier'}
+          </Button>
+          <Button onClick={onCancel} variant="outline" className="flex-1">
+            Annuler
+          </Button>
+        </div>
       </div>
     </DialogContent>
   );
@@ -163,25 +164,23 @@ const CompanyManagement: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-emi-blue">Gestion des Entreprises</h2>
-          <p className="text-muted-foreground">Gérez les entreprises partenaires de votre événement</p>
+          <p className="text-muted-foreground">Gérez les entreprises participantes au forum</p>
         </div>
-        {isAdmin && (
-          <Dialog open={isAddingCompany} onOpenChange={setIsAddingCompany}>
-            <DialogTrigger asChild>
-              <Button className="bg-emi-blue hover:bg-emi-darkblue">
-                <Plus className="w-4 h-4 mr-2" />
-                Nouvelle Entreprise
-              </Button>
-            </DialogTrigger>
-            <CompanyForm
-              company={newCompany}
-              onChange={setNewCompany}
-              onSubmit={handleAddCompany}
-              onCancel={() => setIsAddingCompany(false)}
-              title="Ajouter une Nouvelle Entreprise"
-            />
-          </Dialog>
-        )}
+        <Dialog open={isAddingCompany} onOpenChange={setIsAddingCompany}>
+          <DialogTrigger asChild>
+            <Button className="bg-emi-blue hover:bg-emi-darkblue">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouvelle Entreprise
+            </Button>
+          </DialogTrigger>
+          <CompanyForm
+            company={newCompany}
+            onChange={setNewCompany}
+            onSubmit={handleAddCompany}
+            onCancel={() => setIsAddingCompany(false)}
+            title="Ajouter une Nouvelle Entreprise"
+          />
+        </Dialog>
       </div>
 
       {/* Statistics Card */}
@@ -210,8 +209,8 @@ const CompanyManagement: React.FC = () => {
                 <TableHead>Secteur</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Téléphone</TableHead>
-                <TableHead>Site Web</TableHead>
-                {isAdmin && <TableHead>Actions</TableHead>}
+                <TableHead>Site web</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -221,52 +220,39 @@ const CompanyManagement: React.FC = () => {
                   <TableCell>{company.secteur}</TableCell>
                   <TableCell>{company.email}</TableCell>
                   <TableCell>{company.telephone}</TableCell>
+                  <TableCell>{company.siteWeb}</TableCell>
                   <TableCell>
-                    {company.siteWeb && (
-                      <a 
-                        href={`https://${company.siteWeb}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-emi-blue hover:underline"
+                    <div className="flex space-x-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setEditingCompany(company)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        {editingCompany && (
+                          <CompanyForm
+                            company={editingCompany}
+                            onChange={(updatedCompany) => setEditingCompany({...editingCompany, ...updatedCompany})}
+                            onSubmit={handleEditCompany}
+                            onCancel={() => setEditingCompany(null)}
+                            title="Modifier l'Entreprise"
+                          />
+                        )}
+                      </Dialog>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDeleteCompany(company.id)}
+                        className="text-red-600 hover:text-red-700"
                       >
-                        {company.siteWeb}
-                      </a>
-                    )}
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
-                  {isAdmin && (
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setEditingCompany(company)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          {editingCompany && (
-                            <CompanyForm
-                              company={editingCompany}
-                              onChange={setEditingCompany}
-                              onSubmit={handleEditCompany}
-                              onCancel={() => setEditingCompany(null)}
-                              title="Modifier l'Entreprise"
-                            />
-                          )}
-                        </Dialog>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleDeleteCompany(company.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  )}
                 </TableRow>
               ))}
             </TableBody>

@@ -28,6 +28,57 @@ const SpeakerManagement: React.FC = () => {
   const [editingSpeaker, setEditingSpeaker] = useState<Speaker | null>(null);
   const [newSpeaker, setNewSpeaker] = useState<Partial<Speaker>>({});
 
+  if (!isAdmin) {
+    return (
+      <div className="p-6">
+        <h2 className="text-3xl font-bold text-emi-blue mb-4">Gestion des Intervenants</h2>
+        <div className="space-y-6">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <User className="h-8 w-8 text-emi-blue" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Total Intervenants</p>
+                  <p className="text-2xl font-bold">{speakers.length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Liste des Intervenants</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Spécialité</TableHead>
+                    <TableHead>Entreprise</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Téléphone</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {speakers.map((speaker) => (
+                    <TableRow key={speaker.id}>
+                      <TableCell className="font-medium">{speaker.nom}</TableCell>
+                      <TableCell>{speaker.specialite}</TableCell>
+                      <TableCell>{speaker.entreprise}</TableCell>
+                      <TableCell>{speaker.email}</TableCell>
+                      <TableCell>{speaker.telephone}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   const handleAddSpeaker = () => {
     if (!newSpeaker.nom || !newSpeaker.specialite || !newSpeaker.entreprise || !newSpeaker.email) return;
 
@@ -89,7 +140,6 @@ const SpeakerManagement: React.FC = () => {
             value={speaker.nom || ''}
             onChange={(e) => onChange({...speaker, nom: e.target.value})}
             placeholder="Nom de l'intervenant"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -100,7 +150,6 @@ const SpeakerManagement: React.FC = () => {
             value={speaker.specialite || ''}
             onChange={(e) => onChange({...speaker, specialite: e.target.value})}
             placeholder="Domaine d'expertise"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -110,7 +159,6 @@ const SpeakerManagement: React.FC = () => {
             className="w-full p-2 border border-gray-300 rounded-md"
             value={speaker.entreprise || ''}
             onChange={(e) => onChange({...speaker, entreprise: e.target.value})}
-            disabled={!isAdmin}
           >
             <option value="">Sélectionnez une entreprise</option>
             {companyOptions.map(company => (
@@ -126,7 +174,6 @@ const SpeakerManagement: React.FC = () => {
             value={speaker.biographie || ''}
             onChange={(e) => onChange({...speaker, biographie: e.target.value})}
             placeholder="Biographie de l'intervenant"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -138,7 +185,6 @@ const SpeakerManagement: React.FC = () => {
             value={speaker.email || ''}
             onChange={(e) => onChange({...speaker, email: e.target.value})}
             placeholder="email@intervenant.com"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -149,20 +195,17 @@ const SpeakerManagement: React.FC = () => {
             value={speaker.telephone || ''}
             onChange={(e) => onChange({...speaker, telephone: e.target.value})}
             placeholder="+212 5 22 XX XX XX"
-            disabled={!isAdmin}
           />
         </div>
         
-        {isAdmin && (
-          <div className="flex space-x-2">
-            <Button onClick={onSubmit} className="flex-1">
-              {title.includes('Ajouter') ? 'Ajouter' : 'Modifier'}
-            </Button>
-            <Button onClick={onCancel} variant="outline" className="flex-1">
-              Annuler
-            </Button>
-          </div>
-        )}
+        <div className="flex space-x-2">
+          <Button onClick={onSubmit} className="flex-1">
+            {title.includes('Ajouter') ? 'Ajouter' : 'Modifier'}
+          </Button>
+          <Button onClick={onCancel} variant="outline" className="flex-1">
+            Annuler
+          </Button>
+        </div>
       </div>
     </DialogContent>
   );
@@ -174,23 +217,21 @@ const SpeakerManagement: React.FC = () => {
           <h2 className="text-3xl font-bold text-emi-blue">Gestion des Intervenants</h2>
           <p className="text-muted-foreground">Gérez les intervenants de votre événement</p>
         </div>
-        {isAdmin && (
-          <Dialog open={isAddingSpeaker} onOpenChange={setIsAddingSpeaker}>
-            <DialogTrigger asChild>
-              <Button className="bg-emi-blue hover:bg-emi-darkblue">
-                <Plus className="w-4 h-4 mr-2" />
-                Nouvel Intervenant
-              </Button>
-            </DialogTrigger>
-            <SpeakerForm
-              speaker={newSpeaker}
-              onChange={setNewSpeaker}
-              onSubmit={handleAddSpeaker}
-              onCancel={() => setIsAddingSpeaker(false)}
-              title="Ajouter un Nouvel Intervenant"
-            />
-          </Dialog>
-        )}
+        <Dialog open={isAddingSpeaker} onOpenChange={setIsAddingSpeaker}>
+          <DialogTrigger asChild>
+            <Button className="bg-emi-blue hover:bg-emi-darkblue">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouvel Intervenant
+            </Button>
+          </DialogTrigger>
+          <SpeakerForm
+            speaker={newSpeaker}
+            onChange={setNewSpeaker}
+            onSubmit={handleAddSpeaker}
+            onCancel={() => setIsAddingSpeaker(false)}
+            title="Ajouter un Nouvel Intervenant"
+          />
+        </Dialog>
       </div>
 
       {/* Statistics Card */}
@@ -220,7 +261,7 @@ const SpeakerManagement: React.FC = () => {
                 <TableHead>Entreprise</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Téléphone</TableHead>
-                {isAdmin && <TableHead>Actions</TableHead>}
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -231,40 +272,38 @@ const SpeakerManagement: React.FC = () => {
                   <TableCell>{speaker.entreprise}</TableCell>
                   <TableCell>{speaker.email}</TableCell>
                   <TableCell>{speaker.telephone}</TableCell>
-                  {isAdmin && (
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setEditingSpeaker(speaker)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          {editingSpeaker && (
-                            <SpeakerForm
-                              speaker={editingSpeaker}
-                              onChange={setEditingSpeaker}
-                              onSubmit={handleEditSpeaker}
-                              onCancel={() => setEditingSpeaker(null)}
-                              title="Modifier l'Intervenant"
-                            />
-                          )}
-                        </Dialog>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleDeleteSpeaker(speaker.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  )}
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setEditingSpeaker(speaker)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        {editingSpeaker && (
+                          <SpeakerForm
+                            speaker={editingSpeaker}
+                            onChange={(updatedSpeaker) => setEditingSpeaker({...editingSpeaker, ...updatedSpeaker})}
+                            onSubmit={handleEditSpeaker}
+                            onCancel={() => setEditingSpeaker(null)}
+                            title="Modifier l'Intervenant"
+                          />
+                        )}
+                      </Dialog>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDeleteSpeaker(speaker.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

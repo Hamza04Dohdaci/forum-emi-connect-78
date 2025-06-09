@@ -31,9 +31,70 @@ const ConferenceManagement: React.FC = () => {
     intervenants: []
   });
 
+  if (!isAdmin) {
+    return (
+      <div className="p-6">
+        <h2 className="text-3xl font-bold text-emi-blue mb-4">Gestion des Conférences</h2>
+        <div className="space-y-6">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Calendar className="h-8 w-8 text-emi-blue" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Total Conférences</p>
+                  <p className="text-2xl font-bold">{conferences.length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Liste des Conférences</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Titre</TableHead>
+                    <TableHead>Date & Heure</TableHead>
+                    <TableHead>Durée</TableHead>
+                    <TableHead>Salle</TableHead>
+                    <TableHead>Intervenants</TableHead>
+                    <TableHead>Entreprise</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {conferences.map((conference) => (
+                    <TableRow key={conference.id}>
+                      <TableCell className="font-medium">{conference.titre}</TableCell>
+                      <TableCell>
+                        {new Date(conference.dateHeure).toLocaleDateString('fr-FR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </TableCell>
+                      <TableCell>{conference.duree} min</TableCell>
+                      <TableCell>{conference.salle}</TableCell>
+                      <TableCell>{conference.intervenants.join(', ')}</TableCell>
+                      <TableCell>{conference.entreprise}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   const salles = [
-    'Salle polyvalente (480 personnes)',
-    'Grand amphi (220 personnes)'
+    'Salle Polyvalente (480 personnes)',
+    'Grand Amphi (220 personnes)'
   ];
 
   const handleAddConference = () => {
@@ -110,7 +171,6 @@ const ConferenceManagement: React.FC = () => {
             value={conference.titre || ''}
             onChange={(e) => onChange({...conference, titre: e.target.value})}
             placeholder="Titre de la conférence"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -121,7 +181,6 @@ const ConferenceManagement: React.FC = () => {
             value={conference.description || ''}
             onChange={(e) => onChange({...conference, description: e.target.value})}
             placeholder="Description de la conférence"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -132,7 +191,6 @@ const ConferenceManagement: React.FC = () => {
             type="datetime-local"
             value={conference.dateHeure || ''}
             onChange={(e) => onChange({...conference, dateHeure: e.target.value})}
-            disabled={!isAdmin}
           />
         </div>
         
@@ -144,7 +202,6 @@ const ConferenceManagement: React.FC = () => {
             value={conference.duree || 60}
             onChange={(e) => onChange({...conference, duree: parseInt(e.target.value)})}
             placeholder="60"
-            disabled={!isAdmin}
           />
         </div>
         
@@ -154,7 +211,6 @@ const ConferenceManagement: React.FC = () => {
             className="w-full p-2 border border-gray-300 rounded-md"
             value={conference.salle || ''}
             onChange={(e) => onChange({...conference, salle: e.target.value})}
-            disabled={!isAdmin}
           >
             <option value="">Sélectionnez une salle</option>
             {salles.map(salle => (
@@ -173,7 +229,6 @@ const ConferenceManagement: React.FC = () => {
                   id={`speaker-${speaker.id}`}
                   checked={conference.intervenants?.includes(speaker.nom) || false}
                   onChange={() => onChange(handleIntervenantToggle(conference, speaker.nom))}
-                  disabled={!isAdmin}
                 />
                 <label htmlFor={`speaker-${speaker.id}`} className="text-sm">
                   {speaker.nom} ({speaker.entreprise})
@@ -190,20 +245,17 @@ const ConferenceManagement: React.FC = () => {
             value={conference.entreprise || ''}
             onChange={(e) => onChange({...conference, entreprise: e.target.value})}
             placeholder="Nom de l'entreprise"
-            disabled={!isAdmin}
           />
         </div>
         
-        {isAdmin && (
-          <div className="flex space-x-2">
-            <Button onClick={onSubmit} className="flex-1">
-              {title.includes('Ajouter') ? 'Ajouter' : 'Modifier'}
-            </Button>
-            <Button onClick={onCancel} variant="outline" className="flex-1">
-              Annuler
-            </Button>
-          </div>
-        )}
+        <div className="flex space-x-2">
+          <Button onClick={onSubmit} className="flex-1">
+            {title.includes('Ajouter') ? 'Ajouter' : 'Modifier'}
+          </Button>
+          <Button onClick={onCancel} variant="outline" className="flex-1">
+            Annuler
+          </Button>
+        </div>
       </div>
     </DialogContent>
   );
@@ -215,23 +267,21 @@ const ConferenceManagement: React.FC = () => {
           <h2 className="text-3xl font-bold text-emi-blue">Gestion des Conférences</h2>
           <p className="text-muted-foreground">Planifiez et gérez les conférences de votre événement</p>
         </div>
-        {isAdmin && (
-          <Dialog open={isAddingConference} onOpenChange={setIsAddingConference}>
-            <DialogTrigger asChild>
-              <Button className="bg-emi-blue hover:bg-emi-darkblue">
-                <Plus className="w-4 h-4 mr-2" />
-                Nouvelle Conférence
-              </Button>
-            </DialogTrigger>
-            <ConferenceForm
-              conference={newConference}
-              onChange={setNewConference}
-              onSubmit={handleAddConference}
-              onCancel={() => setIsAddingConference(false)}
-              title="Ajouter une Nouvelle Conférence"
-            />
-          </Dialog>
-        )}
+        <Dialog open={isAddingConference} onOpenChange={setIsAddingConference}>
+          <DialogTrigger asChild>
+            <Button className="bg-emi-blue hover:bg-emi-darkblue">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouvelle Conférence
+            </Button>
+          </DialogTrigger>
+          <ConferenceForm
+            conference={newConference}
+            onChange={setNewConference}
+            onSubmit={handleAddConference}
+            onCancel={() => setIsAddingConference(false)}
+            title="Ajouter une Nouvelle Conférence"
+          />
+        </Dialog>
       </div>
 
       {/* Statistics Card */}
@@ -262,7 +312,7 @@ const ConferenceManagement: React.FC = () => {
                 <TableHead>Salle</TableHead>
                 <TableHead>Intervenants</TableHead>
                 <TableHead>Entreprise</TableHead>
-                {isAdmin && <TableHead>Actions</TableHead>}
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -282,40 +332,38 @@ const ConferenceManagement: React.FC = () => {
                   <TableCell>{conference.salle}</TableCell>
                   <TableCell>{conference.intervenants.join(', ')}</TableCell>
                   <TableCell>{conference.entreprise}</TableCell>
-                  {isAdmin && (
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setEditingConference(conference)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          {editingConference && (
-                            <ConferenceForm
-                              conference={editingConference}
-                              onChange={setEditingConference}
-                              onSubmit={handleEditConference}
-                              onCancel={() => setEditingConference(null)}
-                              title="Modifier la Conférence"
-                            />
-                          )}
-                        </Dialog>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleDeleteConference(conference.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  )}
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setEditingConference(conference)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        {editingConference && (
+                          <ConferenceForm
+                            conference={editingConference}
+                            onChange={(updatedConference) => setEditingConference({...editingConference, ...updatedConference})}
+                            onSubmit={handleEditConference}
+                            onCancel={() => setEditingConference(null)}
+                            title="Modifier la Conférence"
+                          />
+                        )}
+                      </Dialog>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDeleteConference(conference.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
