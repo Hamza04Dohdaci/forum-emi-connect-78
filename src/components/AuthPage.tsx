@@ -4,18 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { User, Mail, Lock, UserPlus, LogIn, Building, Users, Calendar } from 'lucide-react';
+import { Mail, Lock, LogIn, Building, Users, Calendar } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AuthPage: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
-    nom: '',
-    prenom: '',
     email: '',
-    motDePasse: '',
-    confirmPassword: ''
+    motDePasse: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -25,26 +22,15 @@ const AuthPage: React.FC = () => {
     setError('');
     setSuccess('');
 
-    if (!isLogin && formData.motDePasse !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
-      return;
-    }
-
-    if (isLogin) {
-      // Simulate login
-      if (formData.email === 'admin@forumemi.com' && formData.motDePasse === 'admin123') {
-        setSuccess('Connexion réussie ! Redirection...');
-        setTimeout(() => {
-          window.location.hash = '#management';
-        }, 1500);
-      } else {
-        setError('Email ou mot de passe incorrect');
-      }
+    const loginSuccess = login(formData.email, formData.motDePasse);
+    
+    if (loginSuccess) {
+      setSuccess('Connexion réussie ! Redirection...');
+      setTimeout(() => {
+        window.location.hash = '#management';
+      }, 1500);
     } else {
-      // Simulate registration
-      setSuccess('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
-      setIsLogin(true);
-      setFormData({ nom: '', prenom: '', email: '', motDePasse: '', confirmPassword: '' });
+      setError('Email ou mot de passe incorrect');
     }
   };
 
@@ -63,7 +49,7 @@ const AuthPage: React.FC = () => {
           <div className="space-y-6">
             <h1 className="text-5xl font-bold">Forum EMI</h1>
             <p className="text-xl opacity-90">
-              Plateforme de gestion d'événements professionnels
+              Plateforme de gestion de Forum EMI 2026
             </p>
             
             <div className="space-y-4 mt-8">
@@ -80,12 +66,6 @@ const AuthPage: React.FC = () => {
                 <span>Management d'équipe logistique</span>
               </div>
             </div>
-
-            <div className="mt-12 p-6 bg-white/10 rounded-lg backdrop-blur-sm">
-              <h3 className="text-lg font-semibold mb-2">Compte de démonstration</h3>
-              <p className="text-sm opacity-90">Email: admin@forumemi.com</p>
-              <p className="text-sm opacity-90">Mot de passe: admin123</p>
-            </div>
           </div>
         </div>
 
@@ -94,49 +74,11 @@ const AuthPage: React.FC = () => {
           <Card className="shadow-2xl">
             <CardHeader>
               <CardTitle className="text-center text-2xl">
-                {isLogin ? 'Connexion' : 'Créer un compte'}
+                Connexion
               </CardTitle>
-              <Badge variant="outline" className="mx-auto">
-                Équipe Logistique
-              </Badge>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {!isLogin && (
-                  <>
-                    <div>
-                      <Label htmlFor="nom">Nom</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="nom"
-                          name="nom"
-                          value={formData.nom}
-                          onChange={handleInputChange}
-                          placeholder="Votre nom"
-                          className="pl-10"
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="prenom">Prénom</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="prenom"
-                          name="prenom"
-                          value={formData.prenom}
-                          onChange={handleInputChange}
-                          placeholder="Votre prénom"
-                          className="pl-10"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </>
-                )}
-
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -171,25 +113,6 @@ const AuthPage: React.FC = () => {
                   </div>
                 </div>
 
-                {!isLogin && (
-                  <div>
-                    <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
-
                 {error && (
                   <Alert className="border-red-200 bg-red-50">
                     <AlertDescription className="text-red-800">{error}</AlertDescription>
@@ -203,35 +126,9 @@ const AuthPage: React.FC = () => {
                 )}
 
                 <Button type="submit" className="w-full bg-emi-blue hover:bg-emi-darkblue">
-                  {isLogin ? (
-                    <>
-                      <LogIn className="w-4 h-4 mr-2" />
-                      Se connecter
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Créer le compte
-                    </>
-                  )}
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Se connecter
                 </Button>
-
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsLogin(!isLogin);
-                      setError('');
-                      setSuccess('');
-                    }}
-                    className="text-sm text-emi-blue hover:underline"
-                  >
-                    {isLogin 
-                      ? "Pas encore de compte ? S'inscrire" 
-                      : "Déjà un compte ? Se connecter"
-                    }
-                  </button>
-                </div>
               </form>
             </CardContent>
           </Card>

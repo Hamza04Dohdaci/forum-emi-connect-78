@@ -1,10 +1,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, Building, LogIn } from 'lucide-react';
+import { Building, LogIn, LogOut } from 'lucide-react';
 import Logo from './Logo';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header: React.FC = () => {
+  const { isAuthenticated, isAdmin, logout } = useAuth();
+
   const handleAuthClick = () => {
     window.location.hash = '#auth';
   };
@@ -17,6 +20,15 @@ const Header: React.FC = () => {
     window.location.hash = '';
   };
 
+  const handleLogout = () => {
+    logout();
+    window.location.hash = '';
+  };
+
+  const handleDashboardClick = () => {
+    window.location.hash = '#dashboard';
+  };
+
   return (
     <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
@@ -25,7 +37,7 @@ const Header: React.FC = () => {
             <Logo />
             <div className="ml-3">
               <h1 className="text-xl font-bold text-emi-blue">Forum EMI</h1>
-              <p className="text-xs text-muted-foreground">Entreprises</p>
+              <p className="text-xs text-muted-foreground">Entreprises 2026</p>
             </div>
           </div>
           
@@ -42,21 +54,43 @@ const Header: React.FC = () => {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={handleManagementClick}
-              className="hidden md:flex items-center"
-            >
-              <Building className="w-4 h-4 mr-2" />
-              Gestion
-            </Button>
-            <Button 
-              onClick={handleAuthClick}
-              className="bg-emi-blue hover:bg-emi-darkblue"
-            >
-              <LogIn className="w-4 h-4 mr-2" />
-              Connexion
-            </Button>
+            {isAuthenticated && isAdmin && (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={handleManagementClick}
+                  className="hidden md:flex items-center"
+                >
+                  <Building className="w-4 h-4 mr-2" />
+                  Gestion
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleDashboardClick}
+                  className="hidden md:flex items-center"
+                >
+                  Accéder au tableau de bord complet
+                </Button>
+              </>
+            )}
+            
+            {isAuthenticated ? (
+              <Button 
+                onClick={handleLogout}
+                className="bg-emi-blue hover:bg-emi-darkblue"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Déconnexion
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleAuthClick}
+                className="bg-emi-blue hover:bg-emi-darkblue"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Connexion
+              </Button>
+            )}
           </div>
         </div>
       </div>

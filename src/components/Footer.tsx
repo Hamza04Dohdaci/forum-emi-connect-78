@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Logo from './Logo';
-import { Mail, Phone, MapPin, Github, Twitter, Linkedin, Facebook } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -14,17 +14,41 @@ const Footer: React.FC = () => {
               Connecter l'éducation au monde professionnel à travers des événements collaboratifs et innovants.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-white hover:text-emi-gold transition-colors" aria-label="Twitter">
-                <Twitter size={20} />
-              </a>
-              <a href="#" className="text-white hover:text-emi-gold transition-colors" aria-label="Facebook">
-                <Facebook size={20} />
-              </a>
-              <a href="#" className="text-white hover:text-emi-gold transition-colors" aria-label="LinkedIn">
+              <a 
+                href="https://www.linkedin.com/company/emientreprises" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white hover:text-emi-gold transition-colors" 
+                aria-label="LinkedIn"
+              >
                 <Linkedin size={20} />
               </a>
-              <a href="#" className="text-white hover:text-emi-gold transition-colors" aria-label="GitHub">
-                <Github size={20} />
+              <a 
+                href="https://www.facebook.com/emientreprises" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white hover:text-emi-gold transition-colors" 
+                aria-label="Facebook"
+              >
+                <Facebook size={20} />
+              </a>
+              <a 
+                href="https://www.instagram.com/forumemientreprises/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white hover:text-emi-gold transition-colors" 
+                aria-label="Instagram"
+              >
+                <Instagram size={20} />
+              </a>
+              <a 
+                href="https://www.youtube.com/@ForumEMIEntreprises22/videos" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white hover:text-emi-gold transition-colors" 
+                aria-label="YouTube"
+              >
+                <Youtube size={20} />
               </a>
             </div>
           </div>
@@ -36,34 +60,43 @@ const Footer: React.FC = () => {
               <li><a href="#features" className="text-emi-lightgray/80 hover:text-white transition-colors">Fonctionnalités</a></li>
               <li><a href="#dashboard" className="text-emi-lightgray/80 hover:text-white transition-colors">Tableau de bord</a></li>
               <li><a href="#partners" className="text-emi-lightgray/80 hover:text-white transition-colors">Partenaires</a></li>
-              <li><a href="#" className="text-emi-lightgray/80 hover:text-white transition-colors">À propos</a></li>
+              <li>
+                <a 
+                  href="https://www.forumemientreprises.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-emi-lightgray/80 hover:text-white transition-colors"
+                >
+                  À propos
+                </a>
+              </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-6">Légal</h4>
+            <h4 className="text-lg font-semibold mb-6">Forum EMI 2026</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-emi-lightgray/80 hover:text-white transition-colors">Conditions d'utilisation</a></li>
-              <li><a href="#" className="text-emi-lightgray/80 hover:text-white transition-colors">Politique de confidentialité</a></li>
-              <li><a href="#" className="text-emi-lightgray/80 hover:text-white transition-colors">Mentions légales</a></li>
-              <li><a href="#" className="text-emi-lightgray/80 hover:text-white transition-colors">Cookies</a></li>
+              <li><a href="#" className="text-emi-lightgray/80 hover:text-white transition-colors">31ème édition</a></li>
+              <li><a href="#" className="text-emi-lightgray/80 hover:text-white transition-colors">Programme</a></li>
+              <li><a href="#" className="text-emi-lightgray/80 hover:text-white transition-colors">Partenaires</a></li>
+              <li><a href="#" className="text-emi-lightgray/80 hover:text-white transition-colors">Exposants</a></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-lg font-semibold mb-6">Contact</h4>
             <ul className="space-y-4">
-              <li className="flex items-center">
-                <MapPin size={18} className="mr-3 text-emi-gold" />
-                <span className="text-emi-lightgray/80">123 Rue de l'Innovation, 75000 Paris</span>
-              </li>
-              <li className="flex items-center">
-                <Mail size={18} className="mr-3 text-emi-gold" />
-                <a href="mailto:contact@forumemi.fr" className="text-emi-lightgray/80 hover:text-white transition-colors">contact@forumemi.fr</a>
+              <li className="flex items-start">
+                <MapPin size={18} className="mr-3 text-emi-gold mt-1 flex-shrink-0" />
+                <span className="text-emi-lightgray/80">École Mohammadia d'Ingénieurs<br />Av Ibn Sina, Agdal. Rabat, Maroc</span>
               </li>
               <li className="flex items-center">
                 <Phone size={18} className="mr-3 text-emi-gold" />
-                <a href="tel:+33123456789" className="text-emi-lightgray/80 hover:text-white transition-colors">+33 1 23 45 67 89</a>
+                <a href="tel:+212537687150" className="text-emi-lightgray/80 hover:text-white transition-colors">(+212) 537 687 150</a>
+              </li>
+              <li className="flex items-center">
+                <Mail size={18} className="mr-3 text-emi-gold" />
+                <a href="mailto:contact@forumemientreprises.com" className="text-emi-lightgray/80 hover:text-white transition-colors">contact@forumemientreprises.com</a>
               </li>
             </ul>
           </div>

@@ -5,6 +5,14 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const Hero: React.FC = () => {
+  const handleStartClick = () => {
+    window.location.hash = '#auth';
+  };
+
+  const handleLearnMoreClick = () => {
+    window.open('https://www.forumemientreprises.com', '_blank');
+  };
+
   return (
     <section className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 px-6 md:px-8 overflow-hidden">
       {/* Background Elements */}
@@ -18,46 +26,36 @@ const Hero: React.FC = () => {
           <div className="inline-block px-3 py-1 bg-emi-blue/10 rounded-full text-emi-blue font-medium text-sm mb-6 animate-fade-in">
             <span className="mr-2 inline-flex items-center">
               <Zap size={14} className="mr-1 text-emi-gold" />
-              Plateforme Innovante
+              31ème édition
             </span>
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-fade-in animation-delay-100">
-            <span className="block">Connecter l'éducation</span>
+            <span className="block">Forum EMI Entreprise 2026</span>
             <span className="block text-balance">
-              au <span className="text-emi-blue dark:text-emi-gold">monde professionnel</span>
+              <span className="text-emi-blue dark:text-emi-gold">31ème édition</span>
             </span>
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl animate-fade-in animation-delay-200">
-            Forum EMI Entreprises facilite l'organisation d'événements collaboratifs entre entreprises et institutions avec une expérience utilisateur intuitive et élégante.
+            Indétrônable du palmarès des salons de recrutement au Maroc, le Forum EMI-Entreprises se dépasse d'année en année. Les éditions se succèdent, en gardant toujours son statut de Leader National.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 animate-fade-in animation-delay-300">
-            <Button className="bg-emi-blue hover:bg-emi-darkblue text-white px-8 py-6 rounded-lg text-lg">
+            <Button 
+              onClick={handleStartClick}
+              className="bg-emi-blue hover:bg-emi-darkblue text-white px-8 py-6 rounded-lg text-lg"
+            >
               Démarrer
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button variant="outline" className="border-emi-blue text-emi-blue hover:bg-emi-blue/5 px-8 py-6 rounded-lg text-lg">
+            <Button 
+              variant="outline" 
+              onClick={handleLearnMoreClick}
+              className="border-emi-blue text-emi-blue hover:bg-emi-blue/5 px-8 py-6 rounded-lg text-lg"
+            >
               En savoir plus
             </Button>
-          </div>
-          
-          <div className="mt-12 flex items-center space-x-6 animate-fade-in animation-delay-500">
-            <div className="flex -space-x-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className={cn(
-                  "w-10 h-10 rounded-full border-2 border-white",
-                  i === 1 && "bg-[#FFC107]",
-                  i === 2 && "bg-[#03A9F4]",
-                  i === 3 && "bg-[#4CAF50]",
-                  i === 4 && "bg-[#9C27B0]",
-                )}></div>
-              ))}
-            </div>
-            <div>
-              <p className="text-sm font-medium">Rejoint par <span className="text-emi-blue font-semibold">2,000+</span> utilisateurs</p>
-            </div>
           </div>
         </div>
         
