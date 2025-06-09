@@ -5,7 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Users, Building, FileText, CheckSquare, BarChart3, User, Grid3X3, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useEvent } from '@/contexts/EventContext';
+import { useAuth } from '@/contexts/AuthContext';
 import ContractManagement from './ContractManagement';
 import ConferenceManagement from './ConferenceManagement';
 import TaskManagement from './TaskManagement';
@@ -15,7 +17,20 @@ import CompanyManagement from './CompanyManagement';
 
 const EventManagementDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const { companies, contracts, speakers, stands } = useEvent();
+  const { companies, contracts, speakers, stands, conferences, tasks } = useEvent();
+  const { isAuthenticated, isAdmin } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect if not authenticated
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/auth');
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   // Calculate real-time statistics
   const totalRevenue = contracts.reduce((sum, contract) => sum + contract.montant, 0);
@@ -23,30 +38,20 @@ const EventManagementDashboard: React.FC = () => {
   const totalSpeakers = speakers.length;
   const totalCompanies = companies.length;
   const totalContracts = contracts.length;
-
-  const eventStats = {
-    totalPartners: totalContracts,
-    totalContracts: totalContracts,
-    totalRevenue: totalRevenue,
-    upcomingConferences: 5,
-    pendingTasks: 7,
-    completedTasks: 15,
-    totalSpeakers: totalSpeakers,
-    totalCompanies: totalCompanies,
-    occupiedStands: occupiedStands,
-    totalStands: stands.length
-  };
+  const totalConferences = conferences.length;
+  const pendingTasks = tasks.filter(task => task.statut === 'EN_ATTENTE').length;
+  const completedTasks = tasks.filter(task => task.statut === 'TERMINEE').length;
 
   const recentActivities = [
-    { id: 1, action: 'Nouveau contrat DIAMOND signé', entity: 'MegaEnterprise', time: '2h' },
-    { id: 2, action: 'Conférence "IA et Innovation" programmée', entity: 'Salle 101', time: '4h' },
+    { id: 1, action: 'Nouveau contrat DIAMOND signé', entity: 'TechCorp Innovation', time: '2h' },
+    { id: 2, action: 'Conférence "IA et Innovation" programmée', entity: 'Amphithéâtre A', time: '4h' },
     { id: 3, action: 'Intervenant Dr. Martin ajouté', entity: 'TechCorp', time: '5h' },
     { id: 4, action: 'Stand 7 alloué', entity: 'InnovaSoft', time: '6h' },
     { id: 5, action: 'Entreprise SecureNet ajoutée', entity: 'Zone B', time: '1j' }
   ];
 
   const handleHomeClick = () => {
-    window.location.hash = '';
+    navigate('/');
   };
 
   return (
@@ -54,8 +59,8 @@ const EventManagementDashboard: React.FC = () => {
       <div className="container mx-auto p-6">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-emi-blue mb-2">Forum EMI - Gestion d'Événements</h1>
-            <p className="text-muted-foreground">Plateforme complète de gestion pour vos événements professionnels</p>
+            <h1 className="text-4xl font-bold text-emi-blue mb-2">Forum EMI 2026 - 31ème édition</h1>
+            <p className="text-muted-foreground">Plateforme de gestion de Forum EMI Entreprises 2026</p>
           </div>
           <Button onClick={handleHomeClick} variant="outline" className="flex items-center gap-2">
             <Home className="w-4 h-4" />
@@ -69,25 +74,25 @@ const EventManagementDashboard: React.FC = () => {
               <BarChart3 className="w-4 h-4" />
               Tableau de Bord
             </TabsTrigger>
+            <TabsTrigger value="companies" className="flex items-center gap-2">
+              <Building className="w-4 h-4" />
+              Entreprise
+            </TabsTrigger>
+            <TabsTrigger value="stands" className="flex items-center gap-2">
+              <Grid3X3 className="w-4 h-4" />
+              Stands
+            </TabsTrigger>
             <TabsTrigger value="contracts" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Contrats
-            </TabsTrigger>
-            <TabsTrigger value="conferences" className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Conférences
             </TabsTrigger>
             <TabsTrigger value="speakers" className="flex items-center gap-2">
               <User className="w-4 h-4" />
               Intervenants
             </TabsTrigger>
-            <TabsTrigger value="companies" className="flex items-center gap-2">
-              <Building className="w-4 h-4" />
-              Entreprises
-            </TabsTrigger>
-            <TabsTrigger value="stands" className="flex items-center gap-2">
-              <Grid3X3 className="w-4 h-4" />
-              Stands
+            <TabsTrigger value="conferences" className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Conférences
             </TabsTrigger>
             <TabsTrigger value="tasks" className="flex items-center gap-2">
               <CheckSquare className="w-4 h-4" />
@@ -104,7 +109,7 @@ const EventManagementDashboard: React.FC = () => {
                     <Building className="h-8 w-8 text-emi-blue" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-muted-foreground">Entreprises</p>
-                      <p className="text-2xl font-bold">{eventStats.totalCompanies}</p>
+                      <p className="text-2xl font-bold">{totalCompanies}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -115,8 +120,8 @@ const EventManagementDashboard: React.FC = () => {
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-emi-gold" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-muted-foreground">Contrats</p>
-                      <p className="text-2xl font-bold">{eventStats.totalContracts}</p>
+                      <p className="text-sm font-medium text-muted-foreground">Partenaires</p>
+                      <p className="text-2xl font-bold">{totalContracts}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -128,7 +133,7 @@ const EventManagementDashboard: React.FC = () => {
                     <Calendar className="h-8 w-8 text-emi-cyan" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-muted-foreground">Conférences</p>
-                      <p className="text-2xl font-bold">{eventStats.upcomingConferences}</p>
+                      <p className="text-2xl font-bold">{totalConferences}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -140,7 +145,7 @@ const EventManagementDashboard: React.FC = () => {
                     <User className="h-8 w-8 text-purple-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-muted-foreground">Intervenants</p>
-                      <p className="text-2xl font-bold">{eventStats.totalSpeakers}</p>
+                      <p className="text-2xl font-bold">{totalSpeakers}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -152,34 +157,22 @@ const EventManagementDashboard: React.FC = () => {
                     <Grid3X3 className="h-8 w-8 text-green-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-muted-foreground">Stands</p>
-                      <p className="text-2xl font-bold">{eventStats.occupiedStands}/{eventStats.totalStands}</p>
+                      <p className="text-2xl font-bold">{occupiedStands}/{stands.length}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Revenue and Tasks */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="text-green-600 text-2xl font-bold">€</div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-muted-foreground">Revenus</p>
-                      <p className="text-2xl font-bold">{eventStats.totalRevenue.toLocaleString()}€</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
+            {/* Tasks */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
                     <CheckSquare className="h-8 w-8 text-yellow-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-muted-foreground">Tâches en cours</p>
-                      <p className="text-2xl font-bold">{eventStats.pendingTasks}</p>
+                      <p className="text-2xl font-bold">{pendingTasks}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -191,7 +184,7 @@ const EventManagementDashboard: React.FC = () => {
                     <CheckSquare className="h-8 w-8 text-green-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-muted-foreground">Tâches terminées</p>
-                      <p className="text-2xl font-bold">{eventStats.completedTasks}</p>
+                      <p className="text-2xl font-bold">{completedTasks}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -222,61 +215,63 @@ const EventManagementDashboard: React.FC = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Actions Rapides</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button 
-                    className="w-full justify-start" 
-                    variant="outline"
-                    onClick={() => setActiveTab('companies')}
-                  >
-                    <Building className="w-4 h-4 mr-2" />
-                    Ajouter une entreprise
-                  </Button>
-                  <Button 
-                    className="w-full justify-start" 
-                    variant="outline"
-                    onClick={() => setActiveTab('contracts')}
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Créer un nouveau contrat
-                  </Button>
-                  <Button 
-                    className="w-full justify-start" 
-                    variant="outline"
-                    onClick={() => setActiveTab('conferences')}
-                  >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Programmer une conférence
-                  </Button>
-                  <Button 
-                    className="w-full justify-start" 
-                    variant="outline"
-                    onClick={() => setActiveTab('speakers')}
-                  >
-                    <User className="w-4 h-4 mr-2" />
-                    Ajouter un intervenant
-                  </Button>
-                  <Button 
-                    className="w-full justify-start" 
-                    variant="outline"
-                    onClick={() => setActiveTab('stands')}
-                  >
-                    <Grid3X3 className="w-4 h-4 mr-2" />
-                    Allouer un stand
-                  </Button>
-                  <Button 
-                    className="w-full justify-start" 
-                    variant="outline"
-                    onClick={() => setActiveTab('tasks')}
-                  >
-                    <CheckSquare className="w-4 h-4 mr-2" />
-                    Assigner une tâche
-                  </Button>
-                </CardContent>
-              </Card>
+              {isAdmin && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Actions Rapides</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Button 
+                      className="w-full justify-start" 
+                      variant="outline"
+                      onClick={() => setActiveTab('companies')}
+                    >
+                      <Building className="w-4 h-4 mr-2" />
+                      Ajouter une entreprise
+                    </Button>
+                    <Button 
+                      className="w-full justify-start" 
+                      variant="outline"
+                      onClick={() => setActiveTab('contracts')}
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Créer un nouveau contrat
+                    </Button>
+                    <Button 
+                      className="w-full justify-start" 
+                      variant="outline"
+                      onClick={() => setActiveTab('conferences')}
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Programmer une conférence
+                    </Button>
+                    <Button 
+                      className="w-full justify-start" 
+                      variant="outline"
+                      onClick={() => setActiveTab('speakers')}
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Ajouter un intervenant
+                    </Button>
+                    <Button 
+                      className="w-full justify-start" 
+                      variant="outline"
+                      onClick={() => setActiveTab('stands')}
+                    >
+                      <Grid3X3 className="w-4 h-4 mr-2" />
+                      Allouer un stand
+                    </Button>
+                    <Button 
+                      className="w-full justify-start" 
+                      variant="outline"
+                      onClick={() => setActiveTab('tasks')}
+                    >
+                      <CheckSquare className="w-4 h-4 mr-2" />
+                      Assigner une tâche
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 

@@ -1,32 +1,34 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Building, LogIn, LogOut } from 'lucide-react';
+import { Building, LogIn, LogOut, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Header: React.FC = () => {
   const { isAuthenticated, isAdmin, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleAuthClick = () => {
-    window.location.hash = '#auth';
+    navigate('/auth');
   };
 
   const handleManagementClick = () => {
-    window.location.hash = '#management';
+    navigate('/management');
   };
 
   const handleHomeClick = () => {
-    window.location.hash = '';
+    navigate('/');
   };
 
   const handleLogout = () => {
     logout();
-    window.location.hash = '';
+    navigate('/');
   };
 
   const handleDashboardClick = () => {
-    window.location.hash = '#dashboard';
+    navigate('/dashboard');
   };
 
   return (
@@ -69,6 +71,7 @@ const Header: React.FC = () => {
                   onClick={handleDashboardClick}
                   className="hidden md:flex items-center"
                 >
+                  <BarChart3 className="w-4 h-4 mr-2" />
                   Accéder au tableau de bord complet
                 </Button>
               </>

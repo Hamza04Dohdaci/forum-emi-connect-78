@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Calendar, User, Clock } from 'lucide-react';
+import { Plus, Calendar, User } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { useEvent } from '@/contexts/EventContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Task {
   id: string;
@@ -19,33 +21,8 @@ interface Task {
 }
 
 const TaskManagement: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      description: 'Préparer les badges pour les participants',
-      statut: 'EN_ATTENTE',
-      dateLimite: '2024-06-15',
-      responsable: 'Marie Dupont',
-      priority: 'HIGH'
-    },
-    {
-      id: '2',
-      description: 'Installer le matériel audiovisuel',
-      statut: 'EN_COURS',
-      dateLimite: '2024-06-12',
-      responsable: 'Jean Martin',
-      priority: 'MEDIUM'
-    },
-    {
-      id: '3',
-      description: 'Organiser le catering',
-      statut: 'TERMINEE',
-      dateLimite: '2024-06-10',
-      responsable: 'Sophie Laurent',
-      priority: 'HIGH'
-    }
-  ]);
-
+  const { tasks, addTask, updateTask } = useEvent();
+  const { isAdmin } = useAuth();
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTask, setNewTask] = useState<Partial<Task>>({
     statut: 'EN_ATTENTE',
@@ -82,15 +59,16 @@ const TaskManagement: React.FC = () => {
       priority: newTask.priority || 'MEDIUM'
     };
 
-    setTasks([...tasks, task]);
+    addTask(task);
     setNewTask({ statut: 'EN_ATTENTE', priority: 'MEDIUM' });
     setIsAddingTask(false);
   };
 
   const updateTaskStatus = (taskId: string, newStatus: Task['statut']) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, statut: newStatus } : task
-    ));
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      updateTask({ ...task, statut: newStatus });
+    }
   };
 
   const getTasksByStatus = (status: Task['statut']) => {
@@ -98,7 +76,7 @@ const TaskManagement: React.FC = () => {
   };
 
   const isOverdue = (dateLimite: string) => {
-    return new Date(dateLimite) < new Date() && true;
+    return new Date(dateLimite) < new Date();
   };
 
   const TaskCard = ({ task }: { task: Task }) => (
@@ -172,67 +150,69 @@ const TaskManagement: React.FC = () => {
           <h2 className="text-3xl font-bold text-emi-blue">Gestion des Tâches</h2>
           <p className="text-muted-foreground">Organisez et suivez les tâches de votre équipe logistique</p>
         </div>
-        <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
-          <DialogTrigger asChild>
-            <Button className="bg-emi-blue hover:bg-emi-darkblue">
-              <Plus className="w-4 h-4 mr-2" />
-              Nouvelle Tâche
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Créer une Nouvelle Tâche</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="description">Description de la Tâche</Label>
-                <Textarea
-                  id="description"
-                  value={newTask.description || ''}
-                  onChange={(e) => setNewTask({...newTask, description: e.target.value})}
-                  placeholder="Décrivez la tâche à accomplir..."
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="responsable">Responsable</Label>
-                <Input
-                  id="responsable"
-                  value={newTask.responsable || ''}
-                  onChange={(e) => setNewTask({...newTask, responsable: e.target.value})}
-                  placeholder="Nom du responsable"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="dateLimite">Date Limite</Label>
-                <Input
-                  id="dateLimite"
-                  type="date"
-                  value={newTask.dateLimite || ''}
-                  onChange={(e) => setNewTask({...newTask, dateLimite: e.target.value})}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="priority">Priorité</Label>
-                <select 
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  value={newTask.priority || 'MEDIUM'}
-                  onChange={(e) => setNewTask({...newTask, priority: e.target.value as Task['priority']})}
-                >
-                  <option value="LOW">Basse</option>
-                  <option value="MEDIUM">Moyenne</option>
-                  <option value="HIGH">Haute</option>
-                </select>
-              </div>
-              
-              <Button onClick={handleAddTask} className="w-full">
-                Créer la Tâche
+        {isAdmin && (
+          <Dialog open={isAddingTask} onOpenChange={setIsAddingTask}>
+            <DialogTrigger asChild>
+              <Button className="bg-emi-blue hover:bg-emi-darkblue">
+                <Plus className="w-4 h-4 mr-2" />
+                Nouvelle Tâche
               </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Créer une Nouvelle Tâche</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="description">Description de la Tâche</Label>
+                  <Textarea
+                    id="description"
+                    value={newTask.description || ''}
+                    onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+                    placeholder="Décrivez la tâche à accomplir..."
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="responsable">Responsable</Label>
+                  <Input
+                    id="responsable"
+                    value={newTask.responsable || ''}
+                    onChange={(e) => setNewTask({...newTask, responsable: e.target.value})}
+                    placeholder="Nom du responsable"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="dateLimite">Date Limite</Label>
+                  <Input
+                    id="dateLimite"
+                    type="date"
+                    value={newTask.dateLimite || ''}
+                    onChange={(e) => setNewTask({...newTask, dateLimite: e.target.value})}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="priority">Priorité</Label>
+                  <select 
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    value={newTask.priority || 'MEDIUM'}
+                    onChange={(e) => setNewTask({...newTask, priority: e.target.value as Task['priority']})}
+                  >
+                    <option value="LOW">Basse</option>
+                    <option value="MEDIUM">Moyenne</option>
+                    <option value="HIGH">Haute</option>
+                  </select>
+                </div>
+                
+                <Button onClick={handleAddTask} className="w-full">
+                  Créer la Tâche
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Kanban Board */}

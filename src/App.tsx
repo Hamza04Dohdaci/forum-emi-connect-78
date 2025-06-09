@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { EventProvider } from "@/contexts/EventContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
+import AuthPage from "./components/AuthPage";
+import EventManagementDashboard from "./components/EventManagementDashboard";
+import Dashboard from "./components/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,7 +24,9 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/management" element={<EventManagementDashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

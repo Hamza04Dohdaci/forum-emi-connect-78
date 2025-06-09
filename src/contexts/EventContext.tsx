@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface Company {
   id: string;
@@ -9,10 +9,6 @@ interface Company {
   email: string;
   telephone: string;
   siteWeb: string;
-  standNumero?: number;
-  typeContrat?: 'SILVER' | 'GOLD' | 'DIAMOND';
-  nombreEmployes: number;
-  intervenants: string[];
 }
 
 interface Contract {
@@ -32,7 +28,6 @@ interface Speaker {
   entreprise: string;
   email: string;
   telephone: string;
-  conferences: string[];
 }
 
 interface Stand {
@@ -42,7 +37,28 @@ interface Stand {
   taille: 'SMALL' | 'MEDIUM' | 'LARGE';
   statut: 'LIBRE' | 'OCCUPE' | 'RESERVE';
   entreprise?: string;
+  responsable?: string;
   prix: number;
+}
+
+interface Conference {
+  id: string;
+  titre: string;
+  description: string;
+  dateHeure: string;
+  duree: number;
+  salle: string;
+  intervenant: string;
+  entreprise: string;
+}
+
+interface Task {
+  id: string;
+  description: string;
+  statut: 'EN_ATTENTE' | 'EN_COURS' | 'TERMINEE';
+  dateLimite: string;
+  responsable: string;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
 }
 
 interface EventContextType {
@@ -50,6 +66,8 @@ interface EventContextType {
   contracts: Contract[];
   speakers: Speaker[];
   stands: Stand[];
+  conferences: Conference[];
+  tasks: Task[];
   addCompany: (company: Company) => void;
   updateCompany: (company: Company) => void;
   deleteCompany: (id: string) => void;
@@ -62,6 +80,12 @@ interface EventContextType {
   addStand: (stand: Stand) => void;
   updateStand: (stand: Stand) => void;
   deleteStand: (id: string) => void;
+  addConference: (conference: Conference) => void;
+  updateConference: (conference: Conference) => void;
+  deleteConference: (id: string) => void;
+  addTask: (task: Task) => void;
+  updateTask: (task: Task) => void;
+  deleteTask: (id: string) => void;
 }
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -74,85 +98,156 @@ export const useEvent = () => {
   return context;
 };
 
+// Helper functions for localStorage persistence
+const loadFromStorage = <T>(key: string, defaultValue: T[]): T[] => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
+};
+
+const saveToStorage = <T>(key: string, data: T[]) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error(`Failed to save ${key} to localStorage:`, error);
+  }
+};
+
 export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [companies, setCompanies] = useState<Company[]>([
-    {
-      id: '1',
-      nom: 'TechCorp Innovation',
-      secteur: 'Technologies',
-      description: 'Leader en solutions d\'intelligence artificielle et de machine learning.',
-      email: 'contact@techcorp.com',
-      telephone: '+33 1 23 45 67 89',
-      siteWeb: 'www.techcorp.com',
-      standNumero: 1,
-      typeContrat: 'DIAMOND',
-      nombreEmployes: 250,
-      intervenants: ['Dr. Marie Dupont']
-    },
-    {
-      id: '2',
-      nom: 'SecureNet Solutions',
-      secteur: 'Cybersécurité',
-      description: 'Spécialiste en sécurité informatique et protection des données.',
-      email: 'info@securenet.com',
-      telephone: '+33 1 98 76 54 32',
-      siteWeb: 'www.securenet.com',
-      standNumero: 3,
-      typeContrat: 'GOLD',
-      nombreEmployes: 120,
-      intervenants: ['Jean-Pierre Martin']
-    }
-  ]);
+  const [companies, setCompanies] = useState<Company[]>(() => 
+    loadFromStorage('companies', [
+      {
+        id: '1',
+        nom: 'TechCorp Innovation',
+        secteur: 'Technologies',
+        description: 'Leader en solutions d\'intelligence artificielle et de machine learning.',
+        email: 'contact@techcorp.com',
+        telephone: '+212 5 22 34 56 78',
+        siteWeb: 'www.techcorp.com'
+      },
+      {
+        id: '2',
+        nom: 'SecureNet Solutions',
+        secteur: 'Cybersécurité',
+        description: 'Spécialiste en sécurité informatique et protection des données.',
+        email: 'info@securenet.com',
+        telephone: '+212 5 22 98 76 54',
+        siteWeb: 'www.securenet.com'
+      }
+    ])
+  );
 
-  const [contracts, setContracts] = useState<Contract[]>([
-    {
-      id: '1',
-      partenaire: 'TechCorp Innovation',
-      type: 'DIAMOND',
-      montant: 50000,
-      dateSignature: '2024-01-15',
-      statut: 'SIGNE'
-    },
-    {
-      id: '2',
-      partenaire: 'SecureNet Solutions',
-      type: 'GOLD',
-      montant: 25000,
-      dateSignature: '2024-02-10',
-      statut: 'SIGNE'
-    }
-  ]);
+  const [contracts, setContracts] = useState<Contract[]>(() =>
+    loadFromStorage('contracts', [
+      {
+        id: '1',
+        partenaire: 'TechCorp Innovation',
+        type: 'DIAMOND',
+        montant: 50000,
+        dateSignature: '2024-01-15',
+        statut: 'SIGNE'
+      },
+      {
+        id: '2',
+        partenaire: 'SecureNet Solutions',
+        type: 'GOLD',
+        montant: 25000,
+        dateSignature: '2024-02-10',
+        statut: 'SIGNE'
+      }
+    ])
+  );
 
-  const [speakers, setSpeakers] = useState<Speaker[]>([
-    {
-      id: '1',
-      nom: 'Dr. Marie Dupont',
-      biographie: 'Docteure en Intelligence Artificielle avec 15 ans d\'expérience dans le domaine de la recherche et du développement.',
-      specialite: 'Intelligence Artificielle',
-      entreprise: 'TechCorp Innovation',
-      email: 'marie.dupont@techcorp.com',
-      telephone: '+33 1 23 45 67 89',
-      conferences: ['Innovation et IA', 'L\'avenir de l\'IA']
-    },
-    {
-      id: '2',
-      nom: 'Jean-Pierre Martin',
-      biographie: 'Expert en cybersécurité et consultant pour de grandes entreprises internationales.',
-      specialite: 'Cybersécurité',
-      entreprise: 'SecureNet Solutions',
-      email: 'jp.martin@securenet.com',
-      telephone: '+33 1 98 76 54 32',
-      conferences: ['Cybersécurité moderne']
-    }
-  ]);
+  const [speakers, setSpeakers] = useState<Speaker[]>(() =>
+    loadFromStorage('speakers', [
+      {
+        id: '1',
+        nom: 'Dr. Marie Dupont',
+        biographie: 'Docteure en Intelligence Artificielle avec 15 ans d\'expérience.',
+        specialite: 'Intelligence Artificielle',
+        entreprise: 'TechCorp Innovation',
+        email: 'marie.dupont@techcorp.com',
+        telephone: '+212 5 22 34 56 78'
+      },
+      {
+        id: '2',
+        nom: 'Jean-Pierre Martin',
+        biographie: 'Expert en cybersécurité et consultant international.',
+        specialite: 'Cybersécurité',
+        entreprise: 'SecureNet Solutions',
+        email: 'jp.martin@securenet.com',
+        telephone: '+212 5 22 98 76 54'
+      }
+    ])
+  );
 
-  const [stands, setStands] = useState<Stand[]>([
-    { id: '1', numero: 1, zone: 'A', taille: 'LARGE', statut: 'OCCUPE', entreprise: 'TechCorp Innovation', prix: 5000 },
-    { id: '2', numero: 2, zone: 'A', taille: 'MEDIUM', statut: 'LIBRE', prix: 3000 },
-    { id: '3', numero: 3, zone: 'B', taille: 'MEDIUM', statut: 'OCCUPE', entreprise: 'SecureNet Solutions', prix: 3000 },
-    { id: '4', numero: 4, zone: 'B', taille: 'SMALL', statut: 'LIBRE', prix: 2000 }
-  ]);
+  const [stands, setStands] = useState<Stand[]>(() =>
+    loadFromStorage('stands', [
+      { id: '1', numero: 1, zone: 'A', taille: 'LARGE', statut: 'OCCUPE', entreprise: 'TechCorp Innovation', responsable: 'Dr. Marie Dupont', prix: 5000 },
+      { id: '2', numero: 2, zone: 'A', taille: 'MEDIUM', statut: 'LIBRE', prix: 3000 },
+      { id: '3', numero: 3, zone: 'B', taille: 'MEDIUM', statut: 'OCCUPE', entreprise: 'SecureNet Solutions', responsable: 'Jean-Pierre Martin', prix: 3000 },
+      { id: '4', numero: 4, zone: 'B', taille: 'SMALL', statut: 'LIBRE', prix: 2000 }
+    ])
+  );
 
+  const [conferences, setConferences] = useState<Conference[]>(() =>
+    loadFromStorage('conferences', [
+      {
+        id: '1',
+        titre: 'Innovation et IA',
+        description: 'Les dernières avancées en intelligence artificielle',
+        dateHeure: '2024-06-15T10:00',
+        duree: 90,
+        salle: 'Amphithéâtre A',
+        intervenant: 'Dr. Marie Dupont',
+        entreprise: 'TechCorp Innovation'
+      },
+      {
+        id: '2',
+        titre: 'Cybersécurité moderne',
+        description: 'Les défis de la sécurité informatique aujourd\'hui',
+        dateHeure: '2024-06-15T14:00',
+        duree: 60,
+        salle: 'Salle B',
+        intervenant: 'Jean-Pierre Martin',
+        entreprise: 'SecureNet Solutions'
+      }
+    ])
+  );
+
+  const [tasks, setTasks] = useState<Task[]>(() =>
+    loadFromStorage('tasks', [
+      {
+        id: '1',
+        description: 'Préparer les badges pour les participants',
+        statut: 'EN_ATTENTE',
+        dateLimite: '2024-06-15',
+        responsable: 'Marie Dupont',
+        priority: 'HIGH'
+      },
+      {
+        id: '2',
+        description: 'Installer le matériel audiovisuel',
+        statut: 'EN_COURS',
+        dateLimite: '2024-06-12',
+        responsable: 'Jean Martin',
+        priority: 'MEDIUM'
+      }
+    ])
+  );
+
+  // Persist data to localStorage whenever state changes
+  useEffect(() => saveToStorage('companies', companies), [companies]);
+  useEffect(() => saveToStorage('contracts', contracts), [contracts]);
+  useEffect(() => saveToStorage('speakers', speakers), [speakers]);
+  useEffect(() => saveToStorage('stands', stands), [stands]);
+  useEffect(() => saveToStorage('conferences', conferences), [conferences]);
+  useEffect(() => saveToStorage('tasks', tasks), [tasks]);
+
+  // Companies CRUD
   const addCompany = (company: Company) => {
     setCompanies(prev => [...prev, company]);
   };
@@ -165,6 +260,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setCompanies(prev => prev.filter(c => c.id !== id));
   };
 
+  // Contracts CRUD
   const addContract = (contract: Contract) => {
     setContracts(prev => [...prev, contract]);
   };
@@ -177,6 +273,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setContracts(prev => prev.filter(c => c.id !== id));
   };
 
+  // Speakers CRUD
   const addSpeaker = (speaker: Speaker) => {
     setSpeakers(prev => [...prev, speaker]);
   };
@@ -189,6 +286,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setSpeakers(prev => prev.filter(s => s.id !== id));
   };
 
+  // Stands CRUD
   const addStand = (stand: Stand) => {
     setStands(prev => [...prev, stand]);
   };
@@ -201,12 +299,40 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setStands(prev => prev.filter(s => s.id !== id));
   };
 
+  // Conferences CRUD
+  const addConference = (conference: Conference) => {
+    setConferences(prev => [...prev, conference]);
+  };
+
+  const updateConference = (conference: Conference) => {
+    setConferences(prev => prev.map(c => c.id === conference.id ? conference : c));
+  };
+
+  const deleteConference = (id: string) => {
+    setConferences(prev => prev.filter(c => c.id !== id));
+  };
+
+  // Tasks CRUD
+  const addTask = (task: Task) => {
+    setTasks(prev => [...prev, task]);
+  };
+
+  const updateTask = (task: Task) => {
+    setTasks(prev => prev.map(t => t.id === task.id ? task : t));
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+  };
+
   return (
     <EventContext.Provider value={{
       companies,
       contracts,
       speakers,
       stands,
+      conferences,
+      tasks,
       addCompany,
       updateCompany,
       deleteCompany,
@@ -218,7 +344,13 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       deleteSpeaker,
       addStand,
       updateStand,
-      deleteStand
+      deleteStand,
+      addConference,
+      updateConference,
+      deleteConference,
+      addTask,
+      updateTask,
+      deleteTask
     }}>
       {children}
     </EventContext.Provider>

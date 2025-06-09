@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Mail, Lock, LogIn, Building, Users, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 const AuthPage: React.FC = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     motDePasse: ''
@@ -27,8 +29,8 @@ const AuthPage: React.FC = () => {
     if (loginSuccess) {
       setSuccess('Connexion réussie ! Redirection...');
       setTimeout(() => {
-        window.location.hash = '#management';
-      }, 1500);
+        navigate('/management');
+      }, 1000);
     } else {
       setError('Email ou mot de passe incorrect');
     }
