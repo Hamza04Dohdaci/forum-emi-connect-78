@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Building, LogIn, LogOut, BarChart3 } from 'lucide-react';
+import { Building, LogIn, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,10 +25,6 @@ const Header: React.FC = () => {
   const handleLogout = () => {
     logout();
     navigate('/');
-  };
-
-  const handleDashboardClick = () => {
-    navigate('/dashboard');
   };
 
   return (
@@ -57,24 +53,14 @@ const Header: React.FC = () => {
 
           <div className="flex items-center space-x-4">
             {isAuthenticated && isAdmin && (
-              <>
-                <Button 
-                  variant="outline" 
-                  onClick={handleManagementClick}
-                  className="hidden md:flex items-center"
-                >
-                  <Building className="w-4 h-4 mr-2" />
-                  Gestion
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handleDashboardClick}
-                  className="hidden md:flex items-center"
-                >
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Accéder au tableau de bord complet
-                </Button>
-              </>
+              <Button 
+                variant="outline" 
+                onClick={handleManagementClick}
+                className="hidden md:flex items-center"
+              >
+                <Building className="w-4 h-4 mr-2" />
+                Gestion
+              </Button>
             )}
             
             {isAuthenticated ? (

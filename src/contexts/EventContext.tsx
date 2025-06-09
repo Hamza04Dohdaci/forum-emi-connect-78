@@ -48,7 +48,7 @@ interface Conference {
   dateHeure: string;
   duree: number;
   salle: string;
-  intervenant: string;
+  intervenants: string[];
   entreprise: string;
 }
 
@@ -99,7 +99,7 @@ export const useEvent = () => {
 };
 
 // Helper functions for localStorage persistence
-const loadFromStorage = <T>(key: string, defaultValue: T[]): T[] => {
+const loadFromStorage = <T,>(key: string, defaultValue: T[]): T[] => {
   try {
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : defaultValue;
@@ -108,7 +108,7 @@ const loadFromStorage = <T>(key: string, defaultValue: T[]): T[] => {
   }
 };
 
-const saveToStorage = <T>(key: string, data: T[]) => {
+const saveToStorage = <T,>(key: string, data: T[]) => {
   try {
     localStorage.setItem(key, JSON.stringify(data));
   } catch (error) {
@@ -147,7 +147,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         partenaire: 'TechCorp Innovation',
         type: 'DIAMOND',
         montant: 50000,
-        dateSignature: '2024-01-15',
+        dateSignature: new Date().toISOString().split('T')[0],
         statut: 'SIGNE'
       },
       {
@@ -155,7 +155,7 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         partenaire: 'SecureNet Solutions',
         type: 'GOLD',
         montant: 25000,
-        dateSignature: '2024-02-10',
+        dateSignature: new Date().toISOString().split('T')[0],
         statut: 'SIGNE'
       }
     ])
@@ -201,8 +201,8 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         description: 'Les dernières avancées en intelligence artificielle',
         dateHeure: '2024-06-15T10:00',
         duree: 90,
-        salle: 'Amphithéâtre A',
-        intervenant: 'Dr. Marie Dupont',
+        salle: 'Salle polyvalente (480 personnes)',
+        intervenants: ['Dr. Marie Dupont'],
         entreprise: 'TechCorp Innovation'
       },
       {
@@ -211,8 +211,8 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         description: 'Les défis de la sécurité informatique aujourd\'hui',
         dateHeure: '2024-06-15T14:00',
         duree: 60,
-        salle: 'Salle B',
-        intervenant: 'Jean-Pierre Martin',
+        salle: 'Grand amphi (220 personnes)',
+        intervenants: ['Jean-Pierre Martin'],
         entreprise: 'SecureNet Solutions'
       }
     ])
@@ -262,7 +262,8 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // Contracts CRUD
   const addContract = (contract: Contract) => {
-    setContracts(prev => [...prev, contract]);
+    const newContract = { ...contract, statut: 'SIGNE' as const };
+    setContracts(prev => [...prev, newContract]);
   };
 
   const updateContract = (contract: Contract) => {
