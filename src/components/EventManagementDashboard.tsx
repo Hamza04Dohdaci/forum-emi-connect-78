@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Users, Building, FileText, CheckSquare, BarChart3, User, Grid3X3, Home } from 'lucide-react';
+import { Calendar, Users, Building, FileText, CheckSquare, BarChart3, User, Grid3X3, Home, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEvent } from '@/contexts/EventContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +13,7 @@ import TaskManagement from './TaskManagement';
 import SpeakerManagement from './SpeakerManagement';
 import StandManagement from './StandManagement';
 import CompanyManagement from './CompanyManagement';
+import AdvancedAnalytics from './AdvancedAnalytics';
 
 const EventManagementDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -69,10 +69,14 @@ const EventManagementDashboard: React.FC = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               Tableau de Bord
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              Analyses
             </TabsTrigger>
             <TabsTrigger value="companies" className="flex items-center gap-2">
               <Building className="w-4 h-4" />
@@ -273,6 +277,10 @@ const EventManagementDashboard: React.FC = () => {
                 </Card>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdvancedAnalytics />
           </TabsContent>
 
           <TabsContent value="contracts">
