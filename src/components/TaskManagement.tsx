@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Calendar, User } from 'lucide-react';
+import { Plus, Calendar, User, Trash2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { useEvent } from '@/contexts/EventContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,7 +21,7 @@ interface Task {
 }
 
 const TaskManagement: React.FC = () => {
-  const { tasks, addTask, updateTask } = useEvent();
+  const { tasks, addTask, updateTask, deleteTask } = useEvent();
   const { isAdmin } = useAuth();
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTask, setNewTask] = useState<Partial<Task>>({
@@ -64,6 +64,12 @@ const TaskManagement: React.FC = () => {
     setIsAddingTask(false);
   };
 
+  const handleDeleteTask = (taskId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+      deleteTask(taskId);
+    }
+  };
+
   const updateTaskStatus = (taskId: string, newStatus: Task['statut']) => {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
@@ -83,7 +89,19 @@ const TaskManagement: React.FC = () => {
     <Card className="mb-4 hover:shadow-md transition-shadow cursor-pointer">
       <CardContent className="p-4">
         <div className="space-y-3">
-          <p className="font-medium text-sm">{task.description}</p>
+          <div className="flex items-start justify-between">
+            <p className="font-medium text-sm flex-1">{task.description}</p>
+            {isAdmin && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleDeleteTask(task.id)}
+                className="text-red-600 hover:text-red-700 ml-2"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
           
           <div className="flex items-center justify-between">
             <Badge className={priorityColors[task.priority || 'MEDIUM']}>

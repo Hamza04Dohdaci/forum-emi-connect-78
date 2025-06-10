@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Company {
   id: string;
@@ -22,6 +23,25 @@ interface CompanyFormProps {
   onCancel: () => void;
   title: string;
 }
+
+const SECTEURS_ACTIVITE = [
+  'Technologies',
+  'Cybersécurité',
+  'Intelligence Artificielle',
+  'Industrie',
+  'Automobile',
+  'Aéronautique',
+  'Énergie',
+  'Finance & Banque',
+  'Télécommunications',
+  'Santé & Biotechnologie',
+  'Agroalimentaire',
+  'Construction & BTP',
+  'E-commerce',
+  'Consulting',
+  'Logistique & Transport',
+  'Autre'
+];
 
 const CompanyForm: React.FC<CompanyFormProps> = ({ 
   company: initialCompany, 
@@ -57,12 +77,21 @@ const CompanyForm: React.FC<CompanyFormProps> = ({
         
         <div>
           <Label htmlFor="secteur">Secteur d'activité *</Label>
-          <Input
-            id="secteur"
-            value={formData.secteur || ''}
-            onChange={(e) => handleInputChange('secteur', e.target.value)}
-            placeholder="Secteur d'activité"
-          />
+          <Select 
+            value={formData.secteur || ''} 
+            onValueChange={(value) => handleInputChange('secteur', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionnez un secteur d'activité" />
+            </SelectTrigger>
+            <SelectContent>
+              {SECTEURS_ACTIVITE.map((secteur) => (
+                <SelectItem key={secteur} value={secteur}>
+                  {secteur}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         
         <div>
